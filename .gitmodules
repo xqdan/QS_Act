@@ -1,0 +1,6 @@
+[submodule "3rdparty/libprocess"]
+	path = 3rdparty/libprocess
+	url = https://github.com/3rdparty/libprocess.git
+[submodule "3rdparty/stout"]
+	path = 3rdparty/stout
+	url = https://github.com/3rdparty/stout.git
