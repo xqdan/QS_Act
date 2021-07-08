@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include <string>
-#include "compute_actor.h"
 
 #include <process/defer.hpp>
 #include <process/dispatch.hpp>
@@ -22,38 +21,47 @@
 
 #include <stout/strings.hpp>
 
+#include "base_adt.h"
+
 using namespace process;
+
 using namespace process::http;
+
 using std::string;
 
-int main(int argc, char** argv)
+// if in ditribued env, choose ProtobuffProcess
+
+class ComputeActor : public Process<ComputeActor>
 {
-  // create a actor
-  ComputeActor process;
-  PID<ComputeActor> pid = spawn(&process);
+public:
+  ComputeActor(): ProcessBase("ComputeActor") {}
+  ~ComputeActor() override {}
 
-  TaskMsg task;
-  task.task = "hello";
+  // async handler for inference
+  void InferTask(const TaskMsg& task)
+  {
+    std::cout<<" infer task "<<task.task<<std::endl;
+    string body = "... infer task ...";
+    // may need to dispatch a ack msg to other actors
+  } 
 
-  // send a local msg to it
-  for(int i=0; i<5; i++) {
-    dispatch(pid, &ComputeActor::InferTask, task);
+  // async handler for control message
+  void RunCmd(const CmdMsg& cmd)
+  {
+    std::cout<<" cmd msg "<<cmd.ctr<<std::endl;
+    // may need to dispatch a ack msg to other actors
   }
 
-  CmdMsg cmd;
-  // control msg
-  dispatch(pid, &ComputeActor::RunCmd, cmd);
-  
-  // How to terminate a actor? 
+  void Stop()
+  {
+    terminate(self());
+  }
 
-  // option 1, send msg to it, let it terminate itself
-  dispatch(pid, &ComputeActor::Stop);
-  
-  // option 2, terminate in main thread;
-  //terminate(pid);
+protected:
+  //void initialize() override
+  //{
+  //}
 
-  // then wait
-  wait(pid);
-  return 0;
-}
-
+private:
+  //Promise<int> promise;
+};
