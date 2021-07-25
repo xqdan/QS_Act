@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include <string>
-#include "compute_actor.h"
 
 #include <process/defer.hpp>
 #include <process/dispatch.hpp>
@@ -21,39 +20,50 @@
 #include <process/process.hpp>
 
 #include <stout/strings.hpp>
+#include "qs.h"
+#include "rpc.pb.h"
 
 using namespace process;
 using namespace process::http;
 using std::string;
+using namespace QSmsg;
+
+// How to set up work flow ?
+// 1. spawn pre compute actor
+// 2. spawn compute actors base on DAG config
+// 3. spawn device actors
+
+// How to comunicate with laplace?
+// thru promise future api, dispatch with future?
+
+void InferCallBack(const TaskMsg& taskmsg) {
+  std::cout<<"finish task id "<<taskmsg.taskid()<<std::endl;
+}
+
+void CtrCallBack(const CtrMsg& ctrmsg) {
+  std::cout<<"finish ctr id "<<ctrmsg.ctrid()<<std::endl;
+}
 
 int main(int argc, char** argv)
 {
+  const string message = "stop";
   // create a actor
-  ComputeActor process;
-  PID<ComputeActor> pid = spawn(&process);
+  QS qs;
+  spawn(&qs);
+  qs.Initialize("./config.json", InferCallBack, CtrCallBack);
 
-  TaskMsg task;
-  task.task = "hello";
+  string task1 = "task1";
+  std::cout<<"==========SubmitTask========="<<std::endl;
+  qs.SubmitTask(1, task1);
 
-  // send a local msg to it
-  for(int i=0; i<5; i++) {
-    dispatch(pid, &ComputeActor::InferTask, task);
-  }
-
-  CmdMsg cmd;
-  // control msg
-  dispatch(pid, &ComputeActor::RunCmd, cmd);
-  
-  // How to terminate a actor? 
-
-  // option 1, send msg to it, let it terminate itself
-  dispatch(pid, &ComputeActor::Stop);
-  
+  sleep(2);
+ 
+  qs.Stop();
   // option 2, terminate in main thread;
   //terminate(pid);
 
   // then wait
-  wait(pid);
+  wait(qs.self());
   return 0;
 }
 

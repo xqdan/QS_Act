@@ -1,0 +1,53 @@
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License
+
+syntax = "proto2";
+
+package QSmsg;
+
+option cc_enable_arenas = true;
+
+message Tensor {
+  required string name = 1;
+  repeated int32 shape = 2;
+  required string addr = 3;
+  required int32  size = 4;
+  required string dtype = 5;
+};
+
+message TaskMsg {
+  required int32 TaskId  = 1;
+  repeated Tensor inputs = 2;
+  repeated Tensor outputs = 3;
+};
+
+enum DeviceType {
+  CPU = 0;
+  NVGPU = 1;
+  STC = 2;
+  HABANA = 3;
+};
+
+message CtrMsg {
+  required int32  CtrId = 1;
+  enum CtrType {
+    UNKNOWN = 1;
+    SUSPEND = 2;
+    RESUME  = 3;
+  }
+  required CtrType cmd = 2;
+  required string ack = 3;
+};
+
+message StopMsg {
+  required bool stop = 1;
+};

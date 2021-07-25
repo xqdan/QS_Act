@@ -1,0 +1,21 @@
+{ "dag" :
+  [ { "id": "0001",
+      "engine_type": "GOYA_V1.0",
+      "preds": null,
+      "succs": ["0002"],
+      "input": null,
+      "output" : "tensor1,tensor2,tensor3" },
+    { "id": "0002",
+      "preds": ["0001"],
+      "succs": ["0003"],
+      "engine_type": "ST_V1.0",
+      "input": "tensor1,tensor2,tensor3",
+      "output": "tensor4"},
+    { "id": "0003",
+      "preds": ["0003"],
+      "succs": null,
+      "engine_type": "ST_V1.0",
+      "input": "tensor4",
+      "output": null}
+  ]
+}

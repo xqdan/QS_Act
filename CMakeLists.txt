@@ -53,9 +53,17 @@ include_directories(3rdparty/libprocess/src)
 include_directories(3rdparty/libprocess/include)
 
 add_library(process ${PROCESS_SRC})
-target_link_libraries(process http_parser grpc event glog z event_pthreads)
+target_link_libraries(process http_parser grpc event glog z event_pthreads protobuf)
 
 add_dependencies(process libhttp_parser libevent picojson rapidjson libglog)
 
-add_executable(run EXCLUDE_FROM_ALL src/main.cc)
+add_custom_command(
+  OUTPUT rpc.pb.h rpc.pb.cc
+  COMMAND protoc
+    -I${CMAKE_SOURCE_DIR}/src
+    --cpp_out=${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/src/rpc.proto
+  DEPENDS ${CMAKE_SOURCE_DIR}/rpc.proto)
+
+add_executable(run EXCLUDE_FROM_ALL src/main.cc src/rpc.pb.cc)
 target_link_libraries(run process)

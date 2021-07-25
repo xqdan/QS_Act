@@ -10,17 +10,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-#include <iostream>
-#include <string>
+#ifndef BASE_ADT_
+#define BASE_ADT_
 
-// base message data structure for QS
-// Using dispatch for communication is enough, since the runtime env is a single OS process.
-// need to switch to protobuffer definition if in a distribued runtime env.
+#include "rpc.pb.h"
 
-struct TaskMsg {
-  std::string task;
-};
+using namespace QSmsg;
 
-struct CmdMsg {
-  std::string ctr;
-};
+typedef void (*InferHook)(const TaskMsg&);
+
+typedef void (*CtrHook)(const CtrMsg&);
+
+#endif
